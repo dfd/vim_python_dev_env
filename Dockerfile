@@ -9,13 +9,16 @@ ENV UID="1000" \
     UHOME=/home/developer
 
 # Used to configure YouCompleteMe
-ENV GOROOT="/usr/lib/go"
-ENV GOBIN="$GOROOT/bin"
-ENV GOPATH="$UHOME/workspace"
-ENV PATH="$PATH:$GOBIN:$GOPATH/bin"
+#ENV GOROOT="/usr/lib/go"
+#ENV GOBIN="$GOROOT/bin"
+#ENV GOPATH="$UHOME/workspace"
+#ENV PATH="$PATH:$GOBIN:$GOPATH/bin"
 
 #ENV HOME=/home/developer
 # User
+RUN apk update
+
+
 RUN apk --no-cache add sudo \
 # Create HOME dir
     && mkdir -p "${UHOME}" \
@@ -33,32 +36,6 @@ RUN apk --no-cache add sudo \
     && echo "${GNAME}:x:${GID}:${UNAME}" \
     >> /etc/group
 
-# Install Pathogen
-RUN apk --no-cache add curl \
-    && mkdir -p \
-    $UHOME/bundle \
-    $UHOME/.vim/autoload \
-    $UHOME/.vim_runtime/temp_dirs \
-    && curl -LSso \
-    $UHOME/.vim/autoload/pathogen.vim \
-    https://tpo.pe/pathogen.vim \
-    && echo "execute pathogen#infect('$UHOME/bundle/{}')" \
-    > $UHOME/.vimrc \
-    && echo "syntax on " \
-    >> $UHOME/.vimrc \
-    && echo "filetype plugin indent on " \
-    >> $UHOME/.vimrc \
-# Cleanup
-    && apk del curl
-
-# Vim wrapper
-COPY run /usr/local/bin/
-#custom .vimrc stub
-RUN mkdir -p /ext  && echo " " > /ext/.vimrc
-
-COPY .vimrc $UHOME/my.vimrc
-COPY nightsky.vim $UHOME/.vim/colors/
-
 # Vim plugins deps
 RUN apk --update add \
     bash \
@@ -67,41 +44,105 @@ RUN apk --update add \
     git \
     ncurses-terminfo \
     python \
+    cmake \
 # Vundle
-    && git clone https://github.com/VundleVim/Vundle.vim.git $UHOME/.vim/bundle/Vundle.vim \
+#    && git clone https://github.com/VundleVim/Vundle.vim.git $UHOME/.vim/bundle/Vundle.vim \
 # YouCompleteMe
     && apk add --virtual build-deps \
     build-base \
-    cmake \
-    go \
+    #go \
     llvm \
-    perl \
+    #perl \
     python-dev \
-    && git clone --depth 1  https://github.com/Valloric/YouCompleteMe \
-    $UHOME/bundle/YouCompleteMe/ \
-    && cd $UHOME/bundle/YouCompleteMe \
-    && git submodule update --init --recursive \
-    && $UHOME/bundle/YouCompleteMe/install.py --gocode-completer \
+    python3-dev \
+# flake 8
+    && pip3 install --upgrade pip \
+    && pip3 install flake8 \
+    #&& git clone --depth 1  https://github.com/Valloric/YouCompleteMe \
+    #$UHOME/bundle/YouCompleteMe/ \
+    #&& cd $UHOME/bundle/YouCompleteMe \
+    #&& git submodule update --init --recursive \
+    #&& $UHOME/bundle/YouCompleteMe/install.py --clang-completer \
+    #&& $UHOME/bundle/YouCompleteMe/install.py --gocode-completer \
 # Install and compile procvim.vim                        
-    && git clone --depth 1 https://github.com/Shougo/vimproc.vim \
-    $UHOME/bundle/vimproc.vim \
-    && cd $UHOME/bundle/vimproc.vim \
-    && make \
-    && chown $UID:$GID -R $UHOME \
+    #&& git clone --depth 1 https://github.com/Shougo/vimproc.vim \
+    #$UHOME/bundle/vimproc.vim \
+    #&& cd $UHOME/bundle/vimproc.vim \
+    #&& make \
+    #&& chown $UID:$GID -R $UHOME \
 # Cleanup
-    && apk del build-deps \
+#    && apk del build-deps \
     && apk add \
     libxt \
     libx11 \
     libstdc++ \
     && rm -rf \
-    $UHOME/bundle/YouCompleteMe/third_party/ycmd/clang_includes \
-    $UHOME/bundle/YouCompleteMe/third_party/ycmd/cpp \
-    /usr/lib/go \
+    #$UHOME/bundle/YouCompleteMe/third_party/ycmd/clang_includes \
+    #$UHOME/bundle/YouCompleteMe/third_party/ycmd/cpp \
+    #/usr/lib/go \
     /var/cache/* \
     /var/log/* \
     /var/tmp/* \
     && mkdir /var/cache/apk
+
+# Install vim-plug
+#RUN apk --no-cache add curl \
+#    && mkdir -p \
+RUN apk --no-cache add curl \
+    && mkdir -p \
+    $UHOME/bundle \
+    $UHOME/.vim/autoload \
+    $UHOME/.vim/plugged \
+#    $UHOME/.vim_runtime/temp_dirs \
+    && curl -LSso \
+#    && curl -fLo \
+    $UHOME/.vim/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim \
+    && echo "" > $UHOME/.vimrc \
+    && chown $UID:$GID -R $UHOME/.vim/plugged \
+    && chown $UID:$GID -R $UHOME \
+#    && chmod 777 $UHOME/.vim/plugged \
+    && apk del curl
+
+
+# Install Pathogen
+#RUN apk --no-cache add curl \
+#    && mkdir -p \
+#    $UHOME/bundle \
+#    $UHOME/.vim/autoload \
+#    $UHOME/.vim_runtime/temp_dirs \
+#    && curl -LSso \
+#    $UHOME/.vim/autoload/pathogen.vim \
+#    https://tpo.pe/pathogen.vim \
+#    && echo "execute pathogen#infect('$UHOME/bundle/{}')" \
+#    > $UHOME/.vimrc \
+#    && echo "syntax on " \
+#    >> $UHOME/.vimrc \
+#    && echo "filetype plugin indent on " \
+#    >> $UHOME/.vimrc \
+# Cleanup
+#    && apk del curl
+
+# Vim wrapper
+COPY run /usr/local/bin/
+#custom .vimrc stub
+RUN mkdir -p /ext  && echo " " > /ext/.vimrc
+
+#COPY .vimrc $UHOME/my.vimrc
+COPY plug.vimrc $UHOME/plug.vimrc
+COPY final.vimrc $UHOME/final.vimrc
+COPY nightsky.vim $UHOME/.vim/colors/
+
+RUN cat $UHOME/plug.vimrc \
+     >> $UHOME/.vimrc 
+#RUN apk --no-cache add curl \
+#     && curl -s \
+#     https://raw.githubusercontent.com/amix/vimrc/master/vimrcs/extended.vim \
+#     >> $UHOME/.vimrc~ \ 
+RUN  cat  $UHOME/final.vimrc \
+     >> $UHOME/.vimrc \
+     && rm $UHOME/plug.vimrc \
+     && rm $UHOME/final.vimrc
 
 USER $UNAME
 
@@ -150,21 +191,19 @@ USER $UNAME
 #    https://github.com/altercation/vim-colors-solarized
     
 # Build default .vimrc
-RUN  mv -f $UHOME/.vimrc $UHOME/.vimrc~ \
-     && curl -s \
-     https://raw.githubusercontent.com/amix/vimrc/master/vimrcs/basic.vim \
-     >> $UHOME/.vimrc~ \
-     && curl -s \
-     https://raw.githubusercontent.com/amix/vimrc/master/vimrcs/extended.vim \
-     >> $UHOME/.vimrc~ \
-     && cat  $UHOME/my.vimrc \
-     >> $UHOME/.vimrc~ \
-     && rm $UHOME/my.vimrc \
-     && sed -i '/colorscheme peaksea/d' $UHOME/.vimrc~
 
-RUN echo | echo | vim +PluginInstall +qall &>/dev/null
+
+#RUN  mv -f $UHOME/plug.vimrc $UHOME/.vimrc~ 
+    # && chmod 755 $UHOME/.vimrc~
+
+# 
+# new
+
+
+RUN vim +PlugInstall +qall
+#RUN echo | echo | vim +PluginInstall +qall &>/dev/null
 # Pathogen help tags generation
-RUN vim -E -c 'execute pathogen#helptags()' -c q ; return 0
+#RUN vim -E -c 'execute pathogen#helptags()' -c q ; return 0
 
 ENV TERM=xterm-256color
 
