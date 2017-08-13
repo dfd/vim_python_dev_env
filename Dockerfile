@@ -80,7 +80,13 @@ RUN apk --no-cache add curl \
     && curl -LSso \
     $UHOME/.vim/autoload/plug.vim --create-dirs \
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim \
-    && echo "" > $UHOME/.vimrc \
+    ##&& echo "" > $UHOME/.vimrc \
+    && curl -LSso \
+    $UHOME/.vimrc \
+    "https://raw.githubusercontent.com/dfd/vim_files/master/.vimrc" \
+    &&  curl -LSso \
+    $UHOME/.vim/colors/nightsky.vim --create-dirs \
+    "https://raw.githubusercontent.com/dfd/vim_files/master/nightsky.vim" \
     && chown $UID:$GID -R $UHOME/.vim/plugged \
     && chown $UID:$GID -R $UHOME \
     && apk del curl
@@ -92,16 +98,16 @@ COPY run /usr/local/bin/
 RUN mkdir -p /ext  && echo " " > /ext/.vimrc
 
 #COPY .vimrc $UHOME/my.vimrc
-COPY plug.vimrc $UHOME/plug.vimrc
-COPY final.vimrc $UHOME/final.vimrc
-COPY nightsky.vim $UHOME/.vim/colors/
+#COPY plug.vimrc $UHOME/plug.vimrc
+#COPY final.vimrc $UHOME/final.vimrc
+#COPY nightsky.vim $UHOME/.vim/colors/
 
-RUN cat $UHOME/plug.vimrc \
-     >> $UHOME/.vimrc 
-RUN  cat  $UHOME/final.vimrc \
-     >> $UHOME/.vimrc \
-     && rm $UHOME/plug.vimrc \
-     && rm $UHOME/final.vimrc
+#RUN cat $UHOME/plug.vimrc \
+#     >> $UHOME/.vimrc 
+#RUN  cat  $UHOME/final.vimrc \
+#     >> $UHOME/.vimrc \
+#     && rm $UHOME/plug.vimrc \
+#     && rm $UHOME/final.vimrc
 
 USER $UNAME
 
