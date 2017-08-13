@@ -37,9 +37,6 @@ RUN apk --update add \
     ncurses-terminfo \
     python \
     cmake \
-# Vundle
-#    && git clone https://github.com/VundleVim/Vundle.vim.git $UHOME/.vim/bundle/Vundle.vim \
-# YouCompleteMe
     && apk add --virtual build-deps \
     build-base \
     #go \
@@ -50,12 +47,6 @@ RUN apk --update add \
 # flake 8
     && pip3 install --upgrade pip \
     && pip3 install flake8 \
-    #&& git clone --depth 1  https://github.com/Valloric/YouCompleteMe \
-    #$UHOME/bundle/YouCompleteMe/ \
-    #&& cd $UHOME/bundle/YouCompleteMe \
-    #&& git submodule update --init --recursive \
-    #&& $UHOME/bundle/YouCompleteMe/install.py --clang-completer \
-    #&& $UHOME/bundle/YouCompleteMe/install.py --gocode-completer \
 # Cleanup
 #    && apk del build-deps \
     && apk add \
@@ -96,18 +87,6 @@ RUN apk --no-cache add curl \
 COPY run /usr/local/bin/
 #custom .vimrc stub
 RUN mkdir -p /ext  && echo " " > /ext/.vimrc
-
-#COPY .vimrc $UHOME/my.vimrc
-#COPY plug.vimrc $UHOME/plug.vimrc
-#COPY final.vimrc $UHOME/final.vimrc
-#COPY nightsky.vim $UHOME/.vim/colors/
-
-#RUN cat $UHOME/plug.vimrc \
-#     >> $UHOME/.vimrc 
-#RUN  cat  $UHOME/final.vimrc \
-#     >> $UHOME/.vimrc \
-#     && rm $UHOME/plug.vimrc \
-#     && rm $UHOME/final.vimrc
 
 USER $UNAME
 
